@@ -38,6 +38,18 @@ public class MakeWig {
 		
 	}
 	
+	// Write the overall bedGraph header
+	public static String GetBedGraphHeader(String name, String desc){
+			
+		// Create the wig header string
+		String header_str = "track type=bedGraph name=\"" + name + "\"" + 
+							" description=\"" + desc + "\"" + 
+							" visibility=full autoScale=on color=0,0,0\n";
+			
+		return(header_str);
+			
+	}
+	
 	// Write the chromosomal track
 	public static String GetChrTrackHeader(String chr, int start_pos, int step_size, int span_size){
 		
