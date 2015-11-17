@@ -1,5 +1,6 @@
 import genomics_functions.BAMInput;
 import genomics_functions.BinReads;
+import genomics_functions.ChrNameFunctions;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -56,10 +57,10 @@ public class MakeBinBedGraphFromBAM {
 			double bin_read = total_count / rpkm_denom_fact;
 			
 			// Get the updated bin coordinates
-			double start_bin_coord = (double) br_arr[start_b_idx].getStart();
-			double end_bin_coord = (double) br_arr[start_b_idx].getEnd();
+			int start_bin_coord = br_arr[start_b_idx].getStart();
+			int end_bin_coord = br_arr[end_b_idx].getEnd();
 			
-			double bin_midpoint_pos = (start_bin_coord + end_bin_coord) / 2;
+			int bin_midpoint_pos = (start_bin_coord + end_bin_coord - 1) / 2;
 			
 			// Write the output
 			output.write(chr + "\t" + 
@@ -141,12 +142,12 @@ public class MakeBinBedGraphFromBAM {
 			int step_size = Integer.parseInt(args[5]);
 
 			// Echo the input parameters
-			System.out.print("Input Bam File Name:\t" + bam_file_name + "\n" +
+			System.out.print("Input Bam File Name:\t\t" + bam_file_name + "\n" +
 							 "Output BedGraph File Name:\t" + wig_file_name + "\n" +
-							 "BedGraph Name:\t\t" + wig_name + "\n" +
-							 "BedGraph Description:\t" + wig_descrip + "\n" +
-							 "Bin Size (bp):\t\t" + bin_size + "\n" +
-							 "Step Size (bp):\t\t" + step_size + "\n"
+							 "BedGraph Name:\t\t\t" + wig_name + "\n" +
+							 "BedGraph Description:\t\t" + wig_descrip + "\n" +
+							 "Bin Size (bp):\t\t\t" + bin_size + "\n" +
+							 "Step Size (bp):\t\t\t" + step_size + "\n"
 							);
 									
 			// Open the output buffer
@@ -183,9 +184,6 @@ public class MakeBinBedGraphFromBAM {
 				// Echo the chromosome
 				System.out.println("Finding the reads on chromosome " + chr + "...");
 				
-				// Write the header
-				output.write(MakeWig.GetChrTrackHeader(chr, 1, step_size, step_size));
-				
 				// Get the chr length
 				int chr_length = BAMInput.get_chr_length(bam_file_name, chr);
 				
@@ -197,9 +195,12 @@ public class MakeBinBedGraphFromBAM {
 				
 				// Add all the reads to the bin
 				add_reads_to_bin(bam_itr, br_arr, chr_length);
+
+				// Get the chr_string
+				String chr_string = "chr" + ChrNameFunctions.get_ucsc_chr_names(Integer.parseInt(chr));
 								
 				// Write the output
-				WriteBedGraphOutput(output, br_arr, bin_size, step_size, chr, chr_length, rpkm_denom_fact);
+				WriteBedGraphOutput(output, br_arr, bin_size, step_size, chr_string, chr_length, rpkm_denom_fact);
 				
 			}
 				

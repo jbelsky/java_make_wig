@@ -8,7 +8,7 @@ package_name=""
 
 
 # Enter the new jar file
-jar_file_name="make-wig"
+jar_file_name="make-bedGraph"
 
 # Set the external jars
 genomics_functions_jar="/mnt/sdb_mount/alchemy_data/illumina_pipeline/scripts/java_scripts/lib/genomics-functions.jar"
