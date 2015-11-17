@@ -17,7 +17,7 @@ public class MakeWig {
 	// Write the yeast browser header
 	public static String GetBrowserHeaderYeast(){
 		
-		String header = "browser position chrI:1-50,000\n" +
+		String header = "browser position chrIV:1-500,000\n" +
 						"browser hide all\n" +
 						"browser pack sgdGene\n";
 		

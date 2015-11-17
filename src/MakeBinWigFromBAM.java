@@ -101,70 +101,105 @@ public class MakeBinWigFromBAM {
 	
 	public static void main(String[] args) throws IOException {
 
-		// Set the BAM File Name
-		String bam_file_name = args[0];
-		String wig_file_name = args[1];
-		String wig_name = args[4];
-		String wig_descrip = args[5];
-		int bin_size = Integer.parseInt(args[2]);
-		int step_size = Integer.parseInt(args[3]);
-								
-		// Open the output buffer
-		BufferedWriter output = new BufferedWriter(new FileWriter(wig_file_name));
+		// Check that the arguments are correct
+		if(args.length != 6){
+			
+			System.out.print("Arg0:\tInput Bam File Name\n" +
+							 "Arg1:\tOutput Wig File Name\n" +
+							 "Arg2:\tWig Name\n" +
+							 "Arg3:\tWig Description (use underscores, not spaces)\n" +
+							 "Arg4:\tBin Size (bp)\n" +
+							 "Arg5:\tStep Size (bp)\n"
+							);
+			
+		// Check that the Bam file exists
+		}else if(!(new File(args[0])).exists()){
+			
+			System.out.println(args[0] + " is not found on system!");
+			
+		}else{
 
-		// Write the browser header
-		output.write(MakeWig.GetBrowserHeaderYeast());
 
-		// Write the wig track header
-		output.write(MakeWig.GetWigHeader(wig_name, wig_descrip));
+			// Set the BAM File Name
+			String bam_file_name = args[0];
+			String wig_file_name = args[1];
+			String wig_name = args[2];
+			String wig_descrip = args[3];
+			int bin_size = Integer.parseInt(args[4]);
+			int step_size = Integer.parseInt(args[5]);
 
-		
-		
-		
-		// Open the bam file
-		SAMFileReader bam_file = new SAMFileReader(new File(bam_file_name), new File(bam_file_name + ".bai"));
-		
-		// Get the total reads across the main chr
-		int total_reads = BAMInput.get_number_aligned_reads(bam_file_name);
-		
-		// Get the RPKM factor
-		double rpkm_denom_fact = ((double) bin_size / 1000) * ((double) total_reads / 1000000);
-		
-		
-		
-		// Get the chromosome list
-		ArrayList<String> chr_list = BAMInput.get_chr_list(bam_file_name);
-		
-		
-		
-		// Iterate through each chr
-		for(String chr : chr_list){
+			// Echo the input parameters
+			System.out.print("Input Bam File Name:\t" + bam_file_name + "\n" +
+							 "Output Wig File Name:\t" + wig_file_name + "\n" +
+							 "Wig Name:\t\t" + wig_name + "\n" +
+							 "Wig Description:\t" + wig_descrip + "\n" +
+							 "Bin Size (bp):\t\t" + bin_size + "\n" +
+							 "Step Size (bp):\t\t" + step_size + "\n"
+							);
+									
+			// Open the output buffer
+			BufferedWriter output = new BufferedWriter(new FileWriter(wig_file_name));
+
+			// Write the browser header
+			output.write(MakeWig.GetBrowserHeaderYeast());
+
+			// Write the wig track header
+			output.write(MakeWig.GetWigHeader(wig_name, wig_descrip));
+
 			
-			// Write the header
-			output.write(MakeWig.GetChrTrackHeader(chr, 1, step_size, step_size));
 			
-			// Get the chr length
-			int chr_length = BAMInput.get_chr_length(bam_file_name, chr);
 			
-			// Create the bin reads array
-			BinReads[] br_arr = BinReads.create_bin_reads_array(1, chr_length, step_size, step_size);
+			// Open the bam file
+			SAMFileReader bam_file = new SAMFileReader(new File(bam_file_name), new File(bam_file_name + ".bai"));
 			
-			// Iterate through each read on the chr
-			SAMRecordIterator bam_itr = bam_file.queryOverlapping(chr, 1, chr_length);
+			// Get the total reads across the main chr
+			int total_reads = BAMInput.get_number_aligned_reads(bam_file_name);
 			
-			// Add all the reads to the bin
-			add_reads_to_bin(bam_itr, br_arr, chr_length);
+			// Get the RPKM factor
+			double rpkm_denom_fact = ((double) bin_size / 1000) * ((double) total_reads / 1000000);
 			
-			// Write the output
-			write_wig_output(output, br_arr, chr_length, bin_size, step_size, rpkm_denom_fact);
 			
+			
+			// Get the chromosome list
+			ArrayList<String> chr_list = BAMInput.get_chr_list(bam_file_name);
+			
+			
+			
+			// Iterate through each chr
+			for(String chr : chr_list){
+
+				// Echo the chromosome
+				System.out.println("Finding the reads on chromosome " + chr + "...");
+				
+				// Write the header
+				output.write(MakeWig.GetChrTrackHeader(chr, 1, step_size, step_size));
+				
+				// Get the chr length
+				int chr_length = BAMInput.get_chr_length(bam_file_name, chr);
+				
+				// Create the bin reads array
+				BinReads[] br_arr = BinReads.create_bin_reads_array(1, chr_length, step_size, step_size);
+				
+				// Iterate through each read on the chr
+				SAMRecordIterator bam_itr = bam_file.queryOverlapping(chr, 1, chr_length);
+				
+				// Add all the reads to the bin
+				add_reads_to_bin(bam_itr, br_arr, chr_length);
+				
+				// Write the output
+				write_wig_output(output, br_arr, chr_length, bin_size, step_size, rpkm_denom_fact);
+				
+			}
+				
+			// Close the bam_file
+			bam_file.close();
+			
+			// Close the output buffer
+			output.close();
+
+			System.out.println("\tComplete!");
+
 		}
-			
-		// Close the bam_file
-		bam_file.close();
-		
-		// Close the output buffer
-		output.close();
 		
 	}
 
