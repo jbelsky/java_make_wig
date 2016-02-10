@@ -1,6 +1,5 @@
 import genomics_functions.BAMInput;
 import genomics_functions.BinReads;
-import genomics_functions.ChrNameFunctions;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -78,7 +77,7 @@ public class MakeBinBedGraphFromBAM {
 	}
 	
 	
-	public static void add_reads_to_bin(SAMRecordIterator bam_itr, BinReads[] br_arr, int chr_length){
+	public static void AddReadsToBin(SAMRecordIterator bam_itr, BinReads[] br_arr, int chr_length){
 		
 		while(bam_itr.hasNext()){
 			
@@ -88,12 +87,22 @@ public class MakeBinBedGraphFromBAM {
 			// Get the position
 			int pos = 0;
 			
-			if(read.getReadNegativeStrandFlag()){
-				pos = read.getAlignmentEnd() - 75;
+			// If this is a paired-end experiment, take the midpoint of the read
+			if(read.getReadPairedFlag()){
+				
+				pos = read.getAlignmentStart() + (read.getInferredInsertSize()/2);
+				
+			// Otherwise, then a single-end experiment, assume 75 bp shift	
 			}else{
-				pos = read.getAlignmentStart() + 75;
-			}
 			
+				if(read.getReadNegativeStrandFlag()){
+					pos = read.getAlignmentEnd() - 75;
+				}else{
+					pos = read.getAlignmentStart() + 75;
+				}
+			
+			}
+				
 			// Ensure that the position falls within the chr range
 			pos = Math.max(pos, 1);
 			pos = Math.min(pos, chr_length);
@@ -153,9 +162,6 @@ public class MakeBinBedGraphFromBAM {
 			// Open the output buffer
 			BufferedWriter output = new BufferedWriter(new FileWriter(wig_file_name));
 
-			// Write the browser header
-			output.write(MakeWig.GetBrowserHeaderYeast());
-
 			// Write the wig track header
 			output.write(MakeWig.GetBedGraphHeader(wig_name, wig_descrip));
 
@@ -194,13 +200,10 @@ public class MakeBinBedGraphFromBAM {
 				SAMRecordIterator bam_itr = bam_file.queryOverlapping(chr, 1, chr_length);
 				
 				// Add all the reads to the bin
-				add_reads_to_bin(bam_itr, br_arr, chr_length);
+				AddReadsToBin(bam_itr, br_arr, chr_length);
 
-				// Get the chr_string
-				String chr_string = "chr" + ChrNameFunctions.get_ucsc_chr_names(Integer.parseInt(chr));
-								
 				// Write the output
-				WriteBedGraphOutput(output, br_arr, bin_size, step_size, chr_string, chr_length, rpkm_denom_fact);
+				WriteBedGraphOutput(output, br_arr, bin_size, step_size, chr, chr_length, rpkm_denom_fact);
 				
 			}
 				
