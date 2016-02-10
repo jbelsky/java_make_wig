@@ -1,2 +1,0 @@
-Class-Path: /mnt/sdb_mount/alchemy_data/illumina_pipeline/scripts/output_wig_scripts/lib/sam-1.67.jar
-Main-Class: MakeBinWigFromBAM

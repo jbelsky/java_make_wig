@@ -1,2 +1,2 @@
-Class-Path: /mnt/sdb_mount/alchemy_data/illumina_pipeline/scripts/java_scripts/lib/sam-1.67.jar /mnt/sdb_mount/alchemy_data/illumina_pipeline/scripts/java_scripts/lib/genomics-functions.jar
-Main-Class: MakeBinBedGraphFromBAM
+Class-Path: /mnt/sdb_mount/alchemy_data/illumina_pipeline/scripts/output_wig_scripts/lib/sam-1.67.jar
+Main-Class: MakeBinWigFromBAM

@@ -1,0 +1,2 @@
+Class-Path: /data/java-library/genomics-functions.jar /data/java-library/sam-1.67.jar
+Main-Class: MakeBinBedGraphFromBAM
